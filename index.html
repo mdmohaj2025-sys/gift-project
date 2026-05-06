@@ -1,16 +1,480 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
-    <title>Gift Project</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f0f0f0; }
-        h1 { color: #ff4757; }
-        .gift { font-size: 50px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>গিফট প্যানেল | ইমোজি + অ্যানিমেশন</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(145deg, #0d0d1a 0%, #1a1a35 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    .gift-btn {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #ff3366, #ff6b6b);
+      color: white;
+      border: none;
+      padding: 14px 36px;
+      font-size: 17px;
+      font-weight: 600;
+      border-radius: 60px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 8px 30px rgba(255, 51, 102, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+    }
+
+    .video-overlay, .emoji-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 3000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .video-overlay.active, .emoji-overlay.active {
+      display: flex;
+    }
+
+    #introVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.05s linear, opacity 0.05s linear, border-radius 0.3s;
+    }
+
+    .big-emoji {
+      font-size: 150px;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.6s;
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .big-emoji.shrink {
+      transform: scale(0.1) translateY(100px);
+      opacity: 0;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
+      z-index: 2000;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .overlay.active {
+      display: flex;
+    }
+
+    .gift-panel {
+      background: rgba(22, 22, 45, 0.8);
+      backdrop-filter: blur(25px);
+      width: 100%;
+      height: 80vh;
+      border-radius: 32px 32px 0 0;
+      padding: 25px 20px 15px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 -10px 50px rgba(0, 0, 0, 0.6);
+      animation: slideUp 0.5s ease;
+      position: relative;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .coin-ring {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 215, 0, 0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 215, 0, 0.4);
+      border-radius: 50px;
+      padding: 6px 14px;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    }
+
+    .coin-icon {
+      font-size: 24px;
+    }
+
+    .coin-amount {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffd700;
+    }
+
+    .profile-area {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .profile-pic {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 0 10px;
+    }
+
+    .panel-header h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f8f9fa;
+    }
+
+    .close-btn {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gift-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      overflow-y: auto;
+      flex: 1;
+      padding: 0 5px 15px;
+    }
+
+    .gift-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .gift-item.selected .gift-box {
+      border: 3px solid #ffd700;
+      box-shadow: 0 0 20px rgba(255,215,0,0.6);
+    }
+
+    .gift-box {
+      width: 100%;
+      aspect-ratio: 1/1;
+      background: rgba(15,25,45,0.7);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+      overflow: hidden;
+      position: relative;
+      font-size: 30px;
+    }
+
+    .gift-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .gift-label {
+      background: rgba(255,51,102,0.2);
+      border: 1px solid rgba(255,51,102,0.3);
+      color: #ff7b9c;
+      font-weight: 700;
+      font-size: 13px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gift-price {
+      font-size: 11px;
+      font-weight: 600;
+      color: #ff5252;
+      background: rgba(255,82,82,0.15);
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+
+    .send-btn-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+      height: 50px;
+    }
+
+    .send-btn {
+      display: none;
+      background: linear-gradient(135deg, #f1c40f, #f39c12);
+      border: none;
+      color: #000;
+      font-weight: 700;
+      font-size: 18px;
+      padding: 12px 40px;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(243,156,18,0.4);
+    }
+
+    .send-btn.show {
+      display: inline-block;
+    }
+
+    @media (min-width: 600px) {
+      .gift-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>আমার গিফট প্রজেক্টে আপনাকে স্বাগতম!</h1>
-    <div class="gift">🎁</div>
-    <p>এটি আমার প্রথম এইচটিএমএল প্রজেক্ট।</p>
+
+  <button class="gift-btn" id="giftButton">
+    <span class="icon">🎁</span> গিফট
+  </button>
+
+  <!-- ভিডিও ওভারলে (বড় গিফটের জন্য) -->
+  <div class="video-overlay" id="videoOverlay">
+    <video id="introVideo" preload="auto" playsinline></video>
+  </div>
+
+  <!-- ইমোজি ওভারলে (ছোট গিফটের জন্য) -->
+  <div class="emoji-overlay" id="emojiOverlay">
+    <span class="big-emoji" id="bigEmoji">🎉</span>
+  </div>
+
+  <!-- গিফট প্যানেল -->
+  <div class="overlay" id="giftOverlay">
+    <div class="gift-panel">
+      <div class="coin-ring">
+        <span class="coin-icon">🪙</span>
+        <span class="coin-amount" id="coinBalance">50000</span>
+      </div>
+
+      <div class="profile-area">
+        <img class="profile-pic" 
+             src="https://raw.githubusercontent.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/main/IMG_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A6%E0%A7%A8%E0%A7%AB%E0%A7%AF%E0%A7%A6%E0%A7%AA.jpg" 
+             alt="Profile">
+      </div>
+      <div class="panel-header">
+        <h3>🎁 উপহার পাঠান</h3>
+        <button class="close-btn" id="closeGiftBtn">&times;</button>
+      </div>
+      <div class="gift-grid" id="giftGrid"></div>
+      <div class="send-btn-container">
+        <button class="send-btn" id="sendButton">📤 ছেন</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- গিফট ডাটা ----------
+    const GIFT2_IMAGE_URL = 'https://raw.githubusercontent.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/main/IMG_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A6%E0%A7%A8%E0%A7%A6%E0%A7%AB%E0%A7%A9%E0%A7%A8.jpg';
+    const GIFT2_VIDEO_URL = 'https://github.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/raw/refs/heads/main/VID_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A6%E0%A7%A8%E0%A7%A6%E0%A7%AA%E0%A7%A6%E0%A7%A6.mp4';
+    const GIFT3_IMAGE_URL = 'https://raw.githubusercontent.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/main/IMG_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A6%E0%A7%A7%E0%A7%A6%E0%A7%A6%E0%A7%AB%E0%A7%A7.jpg';
+    const GIFT3_VIDEO_URL = 'https://github.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/raw/refs/heads/main/VID_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A6%E0%A7%A6%E0%A7%AB%E0%A7%AA%E0%A7%A9%E0%A7%AE.mp4';
+    const GIFT4_IMAGE_URL = 'https://raw.githubusercontent.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/main/IMG_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A8%E0%A7%A7%E0%A7%A6%E0%A7%AA%E0%A7%A6%E0%A7%A7.jpg';
+    const GIFT4_VIDEO_URL = 'https://github.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/raw/refs/heads/main/VID_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A8%E0%A7%A7%E0%A7%A6%E0%A7%A7%E0%A7%A9%E0%A7%AA.mp4';
+
+    const gifts = [
+      // বড় গিফট (ভিডিও)
+      { id: 1, type: 'video', imgSrc: 'https://raw.githubusercontent.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/main/IMG_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A6%E0%A7%A8%E0%A7%AB%E0%A7%AF%E0%A7%A6%E0%A7%AA.jpg', videoSrc: 'https://github.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/raw/refs/heads/main/lv_0_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD%E0%A7%A6%E0%A7%A8%E0%A7%AB%E0%A7%AD%E0%A7%AB%E0%A7%A6.mp4', price: 1000 },
+      { id: 2, type: 'video', imgSrc: GIFT2_IMAGE_URL, videoSrc: GIFT2_VIDEO_URL, price: 2500 },
+      { id: 3, type: 'video', imgSrc: GIFT3_IMAGE_URL, videoSrc: GIFT3_VIDEO_URL, price: 3000 },
+      { id: 4, type: 'video', imgSrc: GIFT4_IMAGE_URL, videoSrc: GIFT4_VIDEO_URL, price: 5000 },
+      // ইমোজি গিফট (৮টি)
+      { id: 5, type: 'emoji', emoji: '🎉', price: 5 },
+      { id: 6, type: 'emoji', emoji: '❤️', price: 10 },
+      { id: 7, type: 'emoji', emoji: '🌟', price: 15 },
+      { id: 8, type: 'emoji', emoji: '🔥', price: 20 },
+      { id: 9, type: 'emoji', emoji: '💎', price: 25 },
+      { id: 10, type: 'emoji', emoji: '🎈', price: 50 },
+      { id: 11, type: 'emoji', emoji: '🎵', price: 60 },
+      { id: 12, type: 'emoji', emoji: '👑', price: 80 }
+    ];
+
+    let selectedGiftId = null;
+    let coinBalance = 50000;
+
+    // DOM elements
+    const giftBtn = document.getElementById('giftButton');
+    const videoOverlay = document.getElementById('videoOverlay');
+    const introVideo = document.getElementById('introVideo');
+    const emojiOverlay = document.getElementById('emojiOverlay');
+    const bigEmoji = document.getElementById('bigEmoji');
+    const giftOverlay = document.getElementById('giftOverlay');
+    const giftGrid = document.getElementById('giftGrid');
+    const sendBtn = document.getElementById('sendButton');
+    const closeGiftBtn = document.getElementById('closeGiftBtn');
+    const coinBalanceSpan = document.getElementById('coinBalance');
+
+    function updateCoinDisplay() {
+      coinBalanceSpan.textContent = coinBalance.toLocaleString();
+    }
+
+    function renderGifts() {
+      giftGrid.innerHTML = '';
+      gifts.forEach(gift => {
+        const div = document.createElement('div');
+        div.className = `gift-item ${selectedGiftId === gift.id ? 'selected' : ''}`;
+        div.dataset.giftId = gift.id;
+        
+        let boxContent = '';
+        if (gift.type === 'video') {
+          boxContent = `<img src="${gift.imgSrc}" alt="Gift ${gift.id}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <span class="placeholder-icon" style="display:none;">🎁</span>`;
+        } else {
+          boxContent = `<span style="font-size: 32px;">${gift.emoji}</span>`;
+        }
+        
+        div.innerHTML = `
+          <div class="gift-box">${boxContent}</div>
+          <div class="gift-label">${gift.id}</div>
+          <div class="gift-price">🪙 ${gift.price}</div>
+        `;
+        div.addEventListener('click', () => selectGift(gift.id));
+        giftGrid.appendChild(div);
+      });
+      sendBtn.classList.toggle('show', !!selectedGiftId);
+    }
+
+    function selectGift(id) {
+      selectedGiftId = id;
+      renderGifts();
+    }
+
+    // গিফট বাটন → প্যানেল
+    giftBtn.addEventListener('click', () => {
+      selectedGiftId = null;
+      renderGifts();
+      giftOverlay.classList.add('active');
+    });
+
+    // ছেন বাটন
+    sendBtn.addEventListener('click', () => {
+      const gift = gifts.find(g => g.id === selectedGiftId);
+      if (!gift) return;
+
+      if (coinBalance < gift.price) {
+        alert('যথেষ্ট কয়েন নেই!');
+        return;
+      }
+
+      // কয়েন কেটে নেওয়া
+      coinBalance -= gift.price;
+      updateCoinDisplay();
+
+      if (gift.type === 'video') {
+        // ভিডিও দেখানো
+        introVideo.src = gift.videoSrc;
+        introVideo.currentTime = 0;
+        introVideo.muted = false;
+        introVideo.style.transform = 'scale(1)';
+        introVideo.style.opacity = '1';
+        introVideo.style.borderRadius = '0';
+        videoOverlay.classList.add('active');
+        introVideo.play().catch(() => {});
+      } else if (gift.type === 'emoji') {
+        // ইমোজি বড় করে দেখানো
+        bigEmoji.textContent = gift.emoji;
+        bigEmoji.classList.remove('shrink');
+        emojiOverlay.classList.add('active');
+        // অ্যানিমেশন শুরু (একটু দেরিতে)
+        setTimeout(() => {
+          bigEmoji.classList.add('shrink');
+        }, 100);
+        // অ্যানিমেশন শেষে ওভারলে লুকানো
+        setTimeout(() => {
+          emojiOverlay.classList.remove('active');
+        }, 800);
+      }
+    });
+
+    // ভিডিও শেষ ৩ সেকেন্ড স্কেল + রাউন্ড
+    introVideo.addEventListener('timeupdate', () => {
+      const { duration, currentTime } = introVideo;
+      if (duration && duration - currentTime <= 3 && duration - currentTime > 0) {
+        const remaining = duration - currentTime;
+        const scale = Math.max(0.2, remaining / 3);
+        introVideo.style.transform = `scale(${scale})`;
+        introVideo.style.opacity = scale;
+        introVideo.style.borderRadius = scale < 0.5 ? '50%' : '0';
+      }
+    });
+
+    introVideo.addEventListener('ended', () => {
+      videoOverlay.classList.remove('active');
+    });
+
+    // প্যানেল বন্ধ
+    closeGiftBtn.addEventListener('click', () => {
+      giftOverlay.classList.remove('active');
+    });
+
+    // ইনিশিয়াল
+    updateCoinDisplay();
+    renderGifts();
+  </script>
 </body>
-</html>
+    </html>
