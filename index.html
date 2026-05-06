@@ -332,7 +332,7 @@
     // ---------- গিফট ডাটা ----------
     const GIFT2_IMAGE_URL = 'https://raw.githubusercontent.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/main/IMG_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A6%E0%A7%A8%E0%A7%A6%E0%A7%AB%E0%A7%A9%E0%A7%A8.jpg';
     const GIFT2_VIDEO_URL = 'https://github.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/raw/refs/heads/main/VID_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A6%E0%A7%A8%E0%A7%A6%E0%A7%AA%E0%A7%A6%E0%A7%A6.mp4';
-    const GIFT3_IMAGE_URL = 'https://raw.githubusercontent.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/main/IMG_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A6%E0%A7%A7%E0%A7%A6%E0%A7%A6%E0%A7%AB%E0%A7%A7.jpg';
+    const GIFT3_IMAGE_URL = 'https://raw.githubusercontent.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/main/IMG_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A6%E0%A7%A7%E0%A7%A6%E0%A7%A6%E0%A7%A5%E0%A7%A7.jpg';
     const GIFT3_VIDEO_URL = 'https://github.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/raw/refs/heads/main/VID_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A6%E0%A7%A6%E0%A7%AB%E0%A7%AA%E0%A7%A9%E0%A7%AE.mp4';
     const GIFT4_IMAGE_URL = 'https://raw.githubusercontent.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/main/IMG_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A8%E0%A7%A7%E0%A7%A6%E0%A7%AA%E0%A7%A6%E0%A7%A7.jpg';
     const GIFT4_VIDEO_URL = 'https://github.com/mdmohaj2025-sys/Gaddy-Pro-live-chat-room/raw/refs/heads/main/VID_%E0%A7%A8%E0%A7%A6%E0%A7%A8%E0%A7%AC%E0%A7%A6%E0%A7%AA%E0%A7%A8%E0%A7%AD_%E0%A7%A8%E0%A7%A7%E0%A7%A6%E0%A7%A7%E0%A7%A9%E0%A7%AA.mp4';
@@ -425,33 +425,18 @@
       coinBalance -= gift.price;
       updateCoinDisplay();
 
-      if (gift.type === 'video') {
-        // ভিডিও দেখানো
-        introVideo.src = gift.videoSrc;
-        introVideo.currentTime = 0;
-        introVideo.muted = false;
-        introVideo.style.transform = 'scale(1)';
-        introVideo.style.opacity = '1';
-        introVideo.style.borderRadius = '0';
-        videoOverlay.classList.add('active');
-        introVideo.play().catch(() => {});
-      } else if (gift.type === 'emoji') {
-        // ইমোজি বড় করে দেখানো
-        bigEmoji.textContent = gift.emoji;
-        bigEmoji.classList.remove('shrink');
-        emojiOverlay.classList.add('active');
-        // অ্যানিমেশন শুরু (একটু দেরিতে)
-        setTimeout(() => {
-          bigEmoji.classList.add('shrink');
-        }, 100);
-        // অ্যানিমেশন শেষে ওভারলে লুকানো
-        setTimeout(() => {
-          emojiOverlay.classList.remove('active');
-        }, 800);
+      // প্যারেন্ট ভয়েস রুমে গিফট ডাটা পাঠান
+      try {
+        window.parent.postMessage({ type: 'giftSent', gift: gift }, '*');
+      } catch (e) {
+        console.log('postMessage error:', e);
       }
+
+      // এই পেজে আর ভিডিও/ইমোজি অ্যানিমেশন দেখাবে না, প্যারেন্ট দেখাবে
+      giftOverlay.classList.remove('active');
     });
 
-    // ভিডিও শেষ ৩ সেকেন্ড স্কেল + রাউন্ড
+    // ভিডিও শেষ ৩ সেকেন্ড স্কেল + রাউন্ড (প্যারেন্ট ব্যবহার করলে এটা চলবে না, রেখে দিলাম)
     introVideo.addEventListener('timeupdate', () => {
       const { duration, currentTime } = introVideo;
       if (duration && duration - currentTime <= 3 && duration - currentTime > 0) {
@@ -477,4 +462,4 @@
     renderGifts();
   </script>
 </body>
-    </html>
+</html>
